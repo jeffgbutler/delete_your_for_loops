@@ -10,9 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -31,12 +32,12 @@ public class FunctionalScriptGeneratorStep4 implements Generator {
     @Override
     public List<String> generate() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/Users.xlsx");
-             XSSFWorkbook workbook = new XSSFWorkbook(is)) {
+             Workbook workbook = new XSSFWorkbook(is)) {
             return getStatements(workbook.getSheetAt(0));
         }
     }
 
-    private List<String> getStatements(XSSFSheet sheet) {
+    private List<String> getStatements(Sheet sheet) {
         return IntStream.rangeClosed(0, sheet.getLastRowNum())
                 .mapToObj(sheet::getRow)
                 .filter(Objects::nonNull)
@@ -44,20 +45,20 @@ public class FunctionalScriptGeneratorStep4 implements Generator {
                 .collect(Collectors.toList());
     }
 
-    private Stream<String> getStatements(XSSFRow row) {
+    private Stream<String> getStatements(Row row) {
         return getUserId(row)
                 .map(userId -> getStatements(row, userId))
                 .orElse(Stream.empty());
     }
     
-    private Stream<String> getStatements(XSSFRow row, String userId) {
+    private Stream<String> getStatements(Row row, String userId) {
         return Arrays.stream(AppInfo.values())
                 .filter(ai -> hasAuthority(row, ai))
                 .map(ai -> ai.getInsertStatement(userId));
     }
 
-    private Optional<String> getUserId(XSSFRow row) {
-        XSSFCell cell = row.getCell(0);
+    private Optional<String> getUserId(Row row) {
+        Cell cell = row.getCell(0);
         if (cell != null) {
             String value = cell.getStringCellValue();
             if (isValidUserId(value)) {
@@ -68,12 +69,16 @@ public class FunctionalScriptGeneratorStep4 implements Generator {
         return Optional.empty();
     }
     
-    private boolean hasAuthority(XSSFRow row, AppInfo appInfo) {
-        XSSFCell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null && "X".equals(cell.getStringCellValue())) {
+    private boolean hasAuthority(Row row, AppInfo appInfo) {
+        Cell cell = row.getCell(appInfo.columnNumber());
+        if (cell != null && hasAuthority(cell.getStringCellValue())) {
             return true;
         }
         return false;
+    }
+
+    private boolean hasAuthority(String value) {
+        return "X".equals(value);
     }
 
     private boolean isValidUserId(String value) {

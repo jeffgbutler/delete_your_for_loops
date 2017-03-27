@@ -1,13 +1,13 @@
 package com.github.jeffgbutler;
 
+import static com.github.jeffgbutler.Utils.stream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,19 +17,16 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * Step5 is Optional everywhere.  Changes:
+ * Step6 removes the IntStream contrivance.  Changes:
  * 
- * 1. New getCell function that returns Optional
- * 2. New hasAuthority function that just checks the string value 
- * 3. hasAuthority uses the new getCell and hasAuthority methods and map/orElse 
- * 4. getUserId uses the new getCell method and then map/filter/map/orElse and method references
+ * 1. The getStatements(Sheet) function uses a rowIterator turned into a Stream
  * 
- * Streams everywhere, no for loops, no if statements
+ * This also shows how to turn an arbitrary iterator into a stream
  * 
  * @author Jeff Butler
  *
  */
-public class FunctionalScriptGeneratorStep5 implements Generator {
+public class FunctionalScriptGeneratorStep6 implements Generator {
 
     @Override
     public List<String> generate() throws IOException {
@@ -40,9 +37,7 @@ public class FunctionalScriptGeneratorStep5 implements Generator {
     }
 
     private List<String> getStatements(Sheet sheet) {
-        return IntStream.rangeClosed(0, sheet.getLastRowNum())
-                .mapToObj(sheet::getRow)
-                .filter(Objects::nonNull)
+        return stream(sheet.rowIterator())
                 .flatMap(this::getStatements)
                 .collect(Collectors.toList());
     }
