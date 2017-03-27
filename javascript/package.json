@@ -1,0 +1,14 @@
+{
+  "name": "delete_your_for_loops",
+  "version": "1.0.0",
+  "description": "Demonstrates using functional constructs to replace for loops",
+  "main": "delete_your_for_loops.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jeff Butler",
+  "license": "MIT",
+  "dependencies": {
+    "xlsx": "^0.9.6"
+  }
+}

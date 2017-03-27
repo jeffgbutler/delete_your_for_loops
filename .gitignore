@@ -2,3 +2,5 @@
 /java/.settings/
 /java/.classpath
 /java/.project
+
+/javascript/node_modules/
