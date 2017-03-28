@@ -55,4 +55,9 @@ public class ScriptGeneratorTest {
     public void testFunctionalGenerator5() throws IOException {
         testGenerator(new FunctionalScriptGeneratorStep5());
     }
+
+    @Test
+    public void testFunctionalGenerator6() throws IOException {
+        testGenerator(new FunctionalScriptGeneratorStep6());
+    }
 }
