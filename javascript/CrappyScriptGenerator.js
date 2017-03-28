@@ -1,9 +1,21 @@
 var XLSX = require('xlsx');
-var columnToApplicationIdMap = [
-    [1, 2237],
-    [2, 4352],
-    [3, 3657],
-    [4, 5565]
+var applicationInformation = [
+    {
+        columnIndex : 1,
+        applicationId : 2237
+    },
+    {
+        columnIndex : 2,
+        applicationId : 4352
+    },
+    {
+        columnIndex : 3,
+        applicationId : 3657
+    },
+    {
+        columnIndex : 4,
+        applicationId : 5565
+    }
 ];
 
 function getInsertStatement(userId, applicationId) {
@@ -15,24 +27,26 @@ function getInsertStatement(userId, applicationId) {
 }
 
 function generate() {
+    let lines = [];
     let workbook = XLSX.readFile('Users.xlsx');
-    let firstSheet = workbook.SheetNames[0];
-    let worksheet = workbook.Sheets[firstSheet];
+    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
     let sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // generate an array of arrays
     sheetData.forEach(function (row) {
         let userId = row[0];
         if (userId !== undefined) {
             if (userId.substring(1, 2) === '.') {
                 // valid user id
-                columnToApplicationIdMap.forEach(function (appInfo) {
-                    let value = row[appInfo[0]];
+                applicationInformation.forEach(function (appInfo) {
+                    let value = row[appInfo.columnIndex];
                     if (value === 'X') {
-                        console.log(getInsertStatement(userId, appInfo[1]));
+                        lines.push(getInsertStatement(userId, appInfo.applicationId));
                     }
                 });
             }
         }
     });
+    return lines;
 }
 
-generate();
+var lines = generate();
+lines.forEach(line => console.log(line));
