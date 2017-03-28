@@ -1,4 +1,4 @@
-// this variant changes all the for loops into map/filter/reduce
+// this variant shows the use of a higher order function
 
 var XLSX = require('xlsx');
 var applicationInformation = [
@@ -20,12 +20,14 @@ var applicationInformation = [
     }
 ];
 
-function getInsertStatement(userId, applicationId) {
-    return "insert into ApplicationPermission(user_id, application_id) values('"
-        + userId
-        + "', "
-        + applicationId
-        + ");";
+function makeInsertStatementBuilderForUser(userId) {
+    return function (applicationId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+            + userId
+            + "', "
+            + applicationId
+            + ");";
+    }
 }
 
 function generate() {
@@ -43,10 +45,10 @@ function getStatements(sheetData) {
 }
 
 function getStatementsForRow(row) {
-    // we can assume there is a valid userId here because invalids are filtered out above
+    var getInsertStatement = makeInsertStatementBuilderForUser(getUserId(row));
     return applicationInformation
         .filter(ai => hasAuthority(row[ai.columnIndex]))
-        .map(ai => getInsertStatement(getUserId(row), ai.applicationId));
+        .map(ai => getInsertStatement(ai.applicationId));
 }
 
 function hasUserId(row) {
