@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,10 +17,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 /**
  * Step4 introduces Optional.  Changes:
  * 
- * 1. getUserId returns an Optional
- * 2. getStatements uses the Optional.map function
+ * 1. New function getCell that returns an optional
+ * 2. hasAuthority uses the Optional map and orElse methods
+ * 3. getUserId uses the Optional map, filter, and orElse
  * 
- * Still has some if statements - and there is a repeated check for null.  More Optionals to come.
+ * Kind of bothers me that getUserId is called twice for each row.  Maybe we can do better.
  * 
  * @author Jeff Butler
  *
@@ -38,50 +37,47 @@ public class FunctionalScriptGeneratorStep4 implements Generator {
     }
 
     private List<String> getStatements(Sheet sheet) {
-        return IntStream.rangeClosed(0, sheet.getLastRowNum())
-                .mapToObj(sheet::getRow)
-                .filter(Objects::nonNull)
+        return Utils.stream(sheet)
+                .filter(this::hasUserId)
                 .flatMap(this::getStatements)
                 .collect(Collectors.toList());
     }
+    
+    private boolean hasUserId(Row row) {
+        return getUserId(row) != null;
+    }
 
     private Stream<String> getStatements(Row row) {
-        return getUserId(row)
-                .map(userId -> getStatements(row, userId))
-                .orElse(Stream.empty());
-    }
-    
-    private Stream<String> getStatements(Row row, String userId) {
+        String userId = getUserId(row);
+
         return Arrays.stream(AppInfo.values())
                 .filter(ai -> hasAuthority(row, ai))
                 .map(ai -> ai.getInsertStatement(userId));
     }
+    
+    private String getUserId(Row row) {
+        return getCell(row, 0)
+                .map(Cell::getStringCellValue)
+                .filter(this::isValidUserId)
+                .orElse(null);
+    }
 
-    private Optional<String> getUserId(Row row) {
-        Cell cell = row.getCell(0);
-        if (cell != null) {
-            String value = cell.getStringCellValue();
-            if (isValidUserId(value)) {
-                return Optional.of(value);
-            }
-        }
-        
-        return Optional.empty();
+    private boolean hasAuthority(Row row, AppInfo appInfo) {
+        return getCell(row, appInfo.columnNumber())
+                .map(Cell::getStringCellValue)
+                .map(this::hasAuthority)
+                .orElse(false);
     }
     
-    private boolean hasAuthority(Row row, AppInfo appInfo) {
-        Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null && hasAuthority(cell.getStringCellValue())) {
-            return true;
-        }
-        return false;
-    }
-
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }
 
     private boolean isValidUserId(String value) {
         return ".".equals(value.substring(1, 2));
+    }
+    
+    private Optional<Cell> getCell(Row row, int cellNumber) {
+        return Optional.ofNullable(row.getCell(cellNumber));
     }
 }

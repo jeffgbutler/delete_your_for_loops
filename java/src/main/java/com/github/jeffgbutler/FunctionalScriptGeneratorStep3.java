@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -16,12 +14,18 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * Step3 is use streams everywhere.  Changes:
+ * Step3 is use streams everywhere.  If you think about it a but differently, you can see that
+ * the second getStatements method is actually mapping the Stream of enums into a stream of statements.
+ * 
+ * Changes:
  * 
  * 1. Second getStatements method now returns a stream
  * 2. First getStatements method uses a flatMap and Collector
  * 
- * Next step is to remove the if statement in the second getStatement method with an optional
+ * See how the getStatements methods are so much smaller, and we are not ever creating our
+ * own ArrayList.
+ * 
+ * Next step is to remove the if statements with optionals
  * 
  * @author Jeff Butler
  *
@@ -37,28 +41,24 @@ public class FunctionalScriptGeneratorStep3 implements Generator {
     }
 
     private List<String> getStatements(Sheet sheet) {
-        return IntStream.rangeClosed(0, sheet.getLastRowNum())
-                .mapToObj(sheet::getRow)
-                .filter(Objects::nonNull)
+        return Utils.stream(sheet)
+                .filter(this::hasUserId)
                 .flatMap(this::getStatements)
                 .collect(Collectors.toList());
+    }
+    
+    private boolean hasUserId(Row row) {
+        return getUserId(row) != null;
     }
 
     private Stream<String> getStatements(Row row) {
         String userId = getUserId(row);
-        if (userId == null) {
-            return Stream.empty();
-        }
-        
-        return getStatements(row, userId);
-    }
-    
-    private Stream<String> getStatements(Row row, String userId) {
+
         return Arrays.stream(AppInfo.values())
                 .filter(ai -> hasAuthority(row, ai))
                 .map(ai -> ai.getInsertStatement(userId));
     }
-
+    
     private String getUserId(Row row) {
         Cell cell = row.getCell(0);
         if (cell != null) {
@@ -70,15 +70,18 @@ public class FunctionalScriptGeneratorStep3 implements Generator {
         
         return null;
     }
-    
+
     private boolean hasAuthority(Row row, AppInfo appInfo) {
         Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null && hasAuthority(cell.getStringCellValue())) {
-            return true;
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            if (hasAuthority(cellValue)) {
+                return true;
+            }
         }
         return false;
     }
-
+    
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }

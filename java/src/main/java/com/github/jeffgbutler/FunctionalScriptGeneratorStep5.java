@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,12 +15,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * Step5 is Optional everywhere.  Changes:
+ * Step5 is a bit of a rethinking.  Changes:
  * 
- * 1. New getCell function that returns Optional
- * 2. New hasAuthority function that just checks the string value 
- * 3. hasAuthority uses the new getCell and hasAuthority methods and map/orElse 
- * 4. getUserId uses the new getCell method and then map/filter/map/orElse and method references
+ * 1. getUserId now returns an optional
+ * 2. Added a third getStatements overload that accepts row and user id
+ * 3. Change the second getStatements overload to use Optional map and orElse
+ * 4. No longer need the first filter for hasUserId or that function
  * 
  * Streams everywhere, no for loops, no if statements
  * 
@@ -40,13 +38,11 @@ public class FunctionalScriptGeneratorStep5 implements Generator {
     }
 
     private List<String> getStatements(Sheet sheet) {
-        return IntStream.rangeClosed(0, sheet.getLastRowNum())
-                .mapToObj(sheet::getRow)
-                .filter(Objects::nonNull)
+        return Utils.stream(sheet)
                 .flatMap(this::getStatements)
                 .collect(Collectors.toList());
     }
-
+    
     private Stream<String> getStatements(Row row) {
         return getUserId(row)
                 .map(userId -> getStatements(row, userId))
@@ -58,15 +54,13 @@ public class FunctionalScriptGeneratorStep5 implements Generator {
                 .filter(ai -> hasAuthority(row, ai))
                 .map(ai -> ai.getInsertStatement(userId));
     }
-
+    
     private Optional<String> getUserId(Row row) {
         return getCell(row, 0)
                 .map(Cell::getStringCellValue)
-                .filter(this::isValidUserId)
-                .map(Optional::of)
-                .orElse(Optional.empty());
+                .filter(this::isValidUserId);
     }
-    
+
     private boolean hasAuthority(Row row, AppInfo appInfo) {
         return getCell(row, appInfo.columnNumber())
                 .map(Cell::getStringCellValue)
@@ -82,7 +76,7 @@ public class FunctionalScriptGeneratorStep5 implements Generator {
         return ".".equals(value.substring(1, 2));
     }
     
-    private Optional<Cell> getCell(Row row, int columnNumber) {
-        return Optional.ofNullable(row.getCell(columnNumber));
+    private Optional<Cell> getCell(Row row, int cellNumber) {
+        return Optional.ofNullable(row.getCell(cellNumber));
     }
 }

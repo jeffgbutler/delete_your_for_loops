@@ -3,7 +3,6 @@ package com.github.jeffgbutler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -42,26 +41,17 @@ public class FunctionalScriptGeneratorStep1 implements Generator {
     private List<String> getStatements(Sheet sheet) {
         List<String> lines = new ArrayList<>();
         
-        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
+        for (Row row : sheet) {
+            String userId = getUserId(row);
             
-            if (row != null) {
-                lines.addAll(getStatements(row));
+            if (userId != null) {
+                lines.addAll(getStatements(row, userId));
             }
         }
         
         return lines;
     }
 
-    private List<String> getStatements(Row row) {
-        String userId = getUserId(row);
-        if (userId == null) {
-            return Collections.emptyList();
-        }
-        
-        return getStatements(row, userId);
-    }
-    
     private List<String> getStatements(Row row, String userId) {
         List<String> lines = new ArrayList<>();
         for(AppInfo appInfo : AppInfo.values()) {
@@ -83,11 +73,14 @@ public class FunctionalScriptGeneratorStep1 implements Generator {
         
         return null;
     }
-    
+
     private boolean hasAuthority(Row row, AppInfo appInfo) {
         Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null && hasAuthority(cell.getStringCellValue())) {
-            return true;
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            if (hasAuthority(cellValue)) {
+                return true;
+            }
         }
         return false;
     }

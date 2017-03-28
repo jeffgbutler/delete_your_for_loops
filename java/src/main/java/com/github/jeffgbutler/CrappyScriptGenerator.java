@@ -12,10 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * This is the worst way to address the problem.  But it demonstrates the complexity of the task.
- * 
- * This has a bit of a contrivance in it - there is a better way to iterate over the rows.
- * But this sets us up to demonstrate a filter.
+ * This is the worst way to address the problem.
  * 
  * @author Jeff Butler
  *
@@ -29,16 +26,16 @@ public class CrappyScriptGenerator implements Generator {
                 Workbook workbook = new XSSFWorkbook(is)) {
             Sheet sheet = workbook.getSheetAt(0);
 
-            for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row != null) {
-                    Cell cell = row.getCell(0);
-                    if (cell != null) {
-                        String userId = cell.getStringCellValue();
-                        if (".".equals(userId.substring(1, 2))) {
-                            for (AppInfo appInfo : AppInfo.values()) {
-                                cell = row.getCell(appInfo.columnNumber());
-                                if (cell != null && "X".equals(cell.getStringCellValue())) {
+            for (Row row : sheet) {
+                Cell cell = row.getCell(0);
+                if (cell != null) {
+                    String userId = cell.getStringCellValue();
+                    if (".".equals(userId.substring(1, 2))) {
+                        for (AppInfo appInfo : AppInfo.values()) {
+                            cell = row.getCell(appInfo.columnNumber());
+                            if (cell != null) {
+                                String cellValue = cell.getStringCellValue();
+                                if ("X".equals(cellValue)) {
                                     lines.add(appInfo.getInsertStatement(userId));
                                 }
                             }
