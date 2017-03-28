@@ -40,9 +40,7 @@ public class FunctionalScriptGeneratorStep2 implements Generator {
         
         Utils.stream(sheet)
         .filter(this::hasUserId)
-        .forEach(row -> {
-            lines.addAll(getStatements(row));
-        });
+        .forEach(row -> lines.addAll(getStatements(row)));
         
         return lines;
     }
@@ -56,9 +54,7 @@ public class FunctionalScriptGeneratorStep2 implements Generator {
         List<String> lines = new ArrayList<>();
         Arrays.stream(AppInfo.values())
         .filter(ai -> hasAuthority(row, ai))
-        .forEach(ai -> {
-            lines.add(ai.getInsertStatement(userId));
-        });
+        .forEach(ai -> lines.add(ai.getInsertStatement(userId)));
         
         return lines;
     }
