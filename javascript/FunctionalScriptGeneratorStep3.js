@@ -1,6 +1,6 @@
 // this shows a more interesting use of higher order functions.  Now the applicationInformation array
-// contains specialized functions for each column.  The makeInsertStatementBuilder... function has been reversed
-// and then the specialized function is called in getStatementsForRow
+// contains specialized functions for each column.  The makeInsertStatementBuilder... curried function
+// has been reversed and then the specialized function is called in getStatementsForRow
 
 var XLSX = require('xlsx');
 var applicationInformation = [
@@ -22,14 +22,19 @@ var applicationInformation = [
     }
 ];
 
+// this is currying
 function makeInsertStatementBuilderForApplication(applicationId) {
     return function (userId) {
-        return "insert into ApplicationPermission(user_id, application_id) values('"
-            + userId
-            + "', "
-            + applicationId
-            + ");";
+        return getInsertStatement(userId, applicationId);
     }
+}
+
+function getInsertStatement(userId, applicationId) {
+    return "insert into ApplicationPermission(user_id, application_id) values('"
+        + userId
+        + "', "
+        + applicationId
+        + ");";
 }
 
 function generate() {

@@ -20,14 +20,19 @@ var applicationInformation = [
     }
 ];
 
+// this is currying
 function makeInsertStatementBuilderForUser(userId) {
     return function (applicationId) {
-        return "insert into ApplicationPermission(user_id, application_id) values('"
-            + userId
-            + "', "
-            + applicationId
-            + ");";
+        return getInsertStatement(userId, applicationId);
     }
+}
+
+function getInsertStatement(userId, applicationId) {
+    return "insert into ApplicationPermission(user_id, application_id) values('"
+        + userId
+        + "', "
+        + applicationId
+        + ");";
 }
 
 function generate() {
