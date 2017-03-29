@@ -12,7 +12,7 @@ Key concepts demonstrated:
 3. Map/Filter/Reduce
 4. Higher Order Functions
 
-All execises solve the same problem - translating a spreadsheet into an SQL script.  In this case, the spreadsheet contains rows of user IDs and the application permissions that should be granted to each user.  The spreadsheet also contains a lot of other information that is helpful to a human, but not necessary for the programs.
+All execises solve the same problem - translating a spreadsheet into an SQL script.  In this case, the spreadsheet contains rows of user IDs and the application permissions that should be granted to each user.  The spreadsheet also contains a lot of other information that is helpful to a human, but not necessary for the program.
 
 The authority model is simple.  There is a database table named `ApplicationPermission` containinug two columns: `user_id` and `application_id`.  If user f.smith has authority to application 23, then there is a row in the table with those values.
 
@@ -23,3 +23,13 @@ On inspection of the spreadsheet, we've determined the following:
 3. If the text of the third column is X, then the user should have access to the application with the ID 4352
 4. If the text of the fourth column is X, then the user should have access to the application with the ID 3657
 5. If the text of the fifth column is X, then the user should have access to the application with the ID 5565
+
+So if there is a spreadsheet row with `f.smith` in the first column and `X` in the second column, the program should generate this SQL stement:
+
+```sql
+   insert into ApplicationPermission(user_id, application_id) values('f.smith', 2237);
+```
+
+The output of converting the spreadheet should be 44 insert statements.
+
+Off to the races...
