@@ -45,7 +45,7 @@ function getStatements(sheetData) {
 }
 
 function getStatementsForRow(row) {
-    var getInsertStatement = makeInsertStatementBuilderForUser(getUserId(row));
+    let getInsertStatement = makeInsertStatementBuilderForUser(getUserId(row));
     return applicationInformation
         .filter(ai => hasAuthority(row[ai.columnIndex]))
         .map(ai => getInsertStatement(ai.applicationId));
@@ -69,4 +69,5 @@ function isValidUserId(value) {
 }
 
 var lines = generate();
+console.log(lines.length + ' insert statements generated');
 lines.forEach(line => console.log(line));

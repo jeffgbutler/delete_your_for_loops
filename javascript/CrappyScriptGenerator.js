@@ -49,4 +49,5 @@ function generate() {
 }
 
 var lines = generate();
+console.log(lines.length + ' insert statements generated');
 lines.forEach(line => console.log(line));
