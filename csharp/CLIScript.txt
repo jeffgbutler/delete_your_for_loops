@@ -1,0 +1,11 @@
+# this sets up the basic project structure
+
+mkdir ScriptBuilder
+cd ScriptBuilder
+dotnet new classlib
+dotnet add package EPPlus.Core
+cd ..
+mkdir ScriptBuilder.Tests
+cd ScriptBuilder.Tests
+dotnet new xunit
+dotnet add reference ..\ScriptBuilder\ScriptBuilder.csproj

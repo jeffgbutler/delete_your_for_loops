@@ -1,21 +1,19 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using OfficeOpenXml;
 
-namespace delete_your_for_loops
+namespace ScriptBuilder
 {
-    class CrappyScriptGenerator
+    public class CrappyScriptGenerator
     {
-        static void Main(string[] args)
+        public List<string> generate(FileInfo file)
         {
             int[,] applicationInformation =
             {
                 {2, 2257}, {3, 4352}, {4, 3657}, {5, 5565}
             };
             List<string> lines = new List<string>();
-
-            FileInfo file = new FileInfo("Users.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet sheet = package.Workbook.Worksheets[1];
             int rows = sheet.Dimension.Rows;
@@ -44,14 +42,10 @@ namespace delete_your_for_loops
                 }
             }
 
-            Console.WriteLine(lines.Count + " lines generated");
-            foreach(string line in lines)
-            {
-                Console.WriteLine(line);
-            }
+            return lines;
         }
 
-        private static string getInsertStatement(string userId, int applicationId)
+        private string getInsertStatement(string userId, int applicationId)
         {
             return "insert into ApplicationPermission(user_id, application_id) values('"
             + userId

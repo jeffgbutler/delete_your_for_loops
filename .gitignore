@@ -1,5 +1,7 @@
-/csharp/bin/
-/csharp/obj/
+/csharp/ScriptBuilder/bin/
+/csharp/ScriptBuilder/obj/
+/csharp/ScriptBuilder.Tests/bin/
+/csharp/ScriptBuilder.Tests/obj/
 /csharp/.vscode/
 
 /java/target/
