@@ -5,13 +5,13 @@ using OfficeOpenXml;
 
 namespace ScriptBuilder
 {
-    public class CrappyScriptGenerator
+    public class CrappyScriptGenerator : IGenerator
     {
         public List<string> generate(FileInfo file)
         {
             int[,] applicationInformation =
             {
-                {2, 2257}, {3, 4352}, {4, 3657}, {5, 5565}
+                {2, 2237}, {3, 4352}, {4, 3657}, {5, 5565}
             };
             List<string> lines = new List<string>();
             ExcelPackage package = new ExcelPackage(file);

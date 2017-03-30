@@ -7,13 +7,20 @@ namespace ScriptBuilder.Tests
     public class ScriptBuilderTest
     {
         [Fact]
-        public void Test1()
+        public void TestCrappyScriptGenerator()
         {
-            FileInfo file = new FileInfo("Users.xlsx");
+            TestGenerator(new CrappyScriptGenerator());
+        }
+
+        private void TestGenerator(IGenerator generator)
+        {
+            FileInfo file = new FileInfo("C:/Git/GitHub/jeffgbutler/delete_your_for_loops/csharp/ScriptBuilder.Tests/Users.xlsx");
             Assert.True(file.Exists, "The file doesn't exist!!!");
-            CrappyScriptGenerator generator = new CrappyScriptGenerator();
             List<string> lines = generator.generate(file);
             Assert.Equal(44, lines.Count);
+            Assert.Equal(lines[0], "insert into ApplicationPermission(user_id, application_id) values('t.wilson', 2237);");
+            Assert.Equal(lines[22], "insert into ApplicationPermission(user_id, application_id) values('b.walton', 4352);");
+            Assert.Equal(lines[43], "insert into ApplicationPermission(user_id, application_id) values('e.nash', 5565);");
         }
     }
 }
