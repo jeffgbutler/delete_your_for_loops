@@ -1,6 +1,8 @@
 # Delete Your For Loops
 This is example code for my talk titled "Delete Your For Loops". The purpose of the talk is to use a real world problem to show how to refactor from a fully imperative programming model towards a functional model.
 
+The "csharp" directory contains a successive refinement exercise refactoring to LINQ
+
 The "java" directory contains a successive refinement exercise refactoring to Java8 streams, lambdas, and optional.
 
 The "javascript" directory contains a successive refinement exercise refactoring to ES6 map/filter/reduce.
