@@ -1,3 +1,7 @@
+/csharp/bin/
+/csharp/obj/
+/csharp/.vscode/
+
 /java/target/
 /java/.settings/
 /java/.classpath
