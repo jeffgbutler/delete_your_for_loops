@@ -10,5 +10,9 @@
   "license": "MIT",
   "dependencies": {
     "xlsx": "^0.9.6"
+  },
+  "devDependencies": {
+    "eslint": "^3.18.0",
+    "jasmine": "^2.5.3"
   }
 }
