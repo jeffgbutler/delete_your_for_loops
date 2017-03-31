@@ -1,8 +1,9 @@
 package com.github.jeffgbutler;
 
-import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
+
 public interface Generator {
-    List<String> generate() throws IOException;
+    List<String> generate(Sheet sheet);
 }

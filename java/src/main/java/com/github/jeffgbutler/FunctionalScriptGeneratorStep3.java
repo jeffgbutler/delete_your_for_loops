@@ -1,7 +1,5 @@
 package com.github.jeffgbutler;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,8 +8,6 @@ import java.util.stream.Stream;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * Step3 is use streams everywhere.  If you think about it a but differently, you can see that
@@ -33,14 +29,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class FunctionalScriptGeneratorStep3 implements Generator {
 
     @Override
-    public List<String> generate() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/Users.xlsx");
-             Workbook workbook = new XSSFWorkbook(is)) {
-            return getStatements(workbook.getSheetAt(0));
-        }
-    }
-
-    private List<String> getStatements(Sheet sheet) {
+    public List<String> generate(Sheet sheet) {
         return Utils.stream(sheet)
                 .filter(this::hasUserId)
                 .flatMap(this::getStatements)
