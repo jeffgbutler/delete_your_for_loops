@@ -1,5 +1,3 @@
-const XLSX = require("xlsx");
-
 const applicationInformation = [
     {
         columnIndex: 1,
@@ -27,11 +25,8 @@ function getInsertStatement(userId, applicationId) {
         + ");";
 }
 
-function generate() {
+function generate(sheetData) {
     let lines = [];
-    let workbook = XLSX.readFile("lib/Users.xlsx");
-    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    let sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // generate an array of arrays
     sheetData.forEach(function (row) {
         let userId = row[0];
         if (userId !== undefined) {

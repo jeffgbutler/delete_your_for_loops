@@ -1,7 +1,5 @@
 // this variant shows the use of a higher order function
 
-const XLSX = require("xlsx");
-
 const applicationInformation = [
     {
         columnIndex: 1,
@@ -36,14 +34,7 @@ function getInsertStatement(userId, applicationId) {
         + ");";
 }
 
-function generate() {
-    let workbook = XLSX.readFile("lib/Users.xlsx");
-    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    let sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // generate an array of arrays
-    return getStatements(sheetData);
-}
-
-function getStatements(sheetData) {
+function generate(sheetData) {
     return sheetData
         .filter(row => hasUserId(row))
         .map(row => getStatementsForRow(row))
