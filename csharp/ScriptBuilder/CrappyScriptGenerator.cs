@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OfficeOpenXml;
 
 namespace ScriptBuilder
 {
     public class CrappyScriptGenerator : IGenerator
     {
-        public List<string> generate(FileInfo file)
+        public List<string> generate(ExcelWorksheet sheet)
         {
             int[,] applicationInformation =
             {
                 {2, 2237}, {3, 4352}, {4, 3657}, {5, 5565}
             };
             List<string> lines = new List<string>();
-            ExcelPackage package = new ExcelPackage(file);
-            ExcelWorksheet sheet = package.Workbook.Worksheets[1];
             int rows = sheet.Dimension.Rows;
 
             for (int row = 1; row <= rows; row++)

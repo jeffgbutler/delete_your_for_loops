@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using System.IO;
+using OfficeOpenXml;
 
 namespace ScriptBuilder
 {
     public interface IGenerator
     {
-        List<string> generate(FileInfo file);
+        List<string> generate(ExcelWorksheet sheet);
     }
 }
