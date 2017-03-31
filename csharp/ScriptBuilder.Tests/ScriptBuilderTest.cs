@@ -14,7 +14,7 @@ namespace ScriptBuilder.Tests
 
         private void TestGenerator(IGenerator generator)
         {
-            FileInfo file = new FileInfo("C:/Git/GitHub/jeffgbutler/delete_your_for_loops/csharp/ScriptBuilder.Tests/Users.xlsx");
+            FileInfo file = new FileInfo("Users.xlsx");
             Assert.True(file.Exists, "The file doesn't exist!!!");
             List<string> lines = generator.generate(file);
             Assert.Equal(44, lines.Count);

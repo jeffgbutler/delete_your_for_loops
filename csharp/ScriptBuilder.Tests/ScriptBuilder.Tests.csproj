@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Users.xlsx"/>
+    <None Include="Users.xlsx" CopyToOutputDirectory="Always"/>
   </ItemGroup>
 
   <!--From Hanselman's blog here:
