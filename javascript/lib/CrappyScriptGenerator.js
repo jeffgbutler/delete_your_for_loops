@@ -1,34 +1,35 @@
 var XLSX = require('xlsx');
-var applicationInformation = [
-    {
-        columnIndex : 1,
-        applicationId : 2237
-    },
-    {
-        columnIndex : 2,
-        applicationId : 4352
-    },
-    {
-        columnIndex : 3,
-        applicationId : 3657
-    },
-    {
-        columnIndex : 4,
-        applicationId : 5565
+
+exports.generate = function () {
+    var applicationInformation = [
+        {
+            columnIndex: 1,
+            applicationId: 2237
+        },
+        {
+            columnIndex: 2,
+            applicationId: 4352
+        },
+        {
+            columnIndex: 3,
+            applicationId: 3657
+        },
+        {
+            columnIndex: 4,
+            applicationId: 5565
+        }
+    ];
+
+    function getInsertStatement(userId, applicationId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+            + userId
+            + "', "
+            + applicationId
+            + ");";
     }
-];
 
-function getInsertStatement(userId, applicationId) {
-    return "insert into ApplicationPermission(user_id, application_id) values('"
-        + userId
-        + "', "
-        + applicationId
-        + ");";
-}
-
-function generate() {
     let lines = [];
-    let workbook = XLSX.readFile('Users.xlsx');
+    let workbook = XLSX.readFile('lib/Users.xlsx');
     let worksheet = workbook.Sheets[workbook.SheetNames[0]];
     let sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // generate an array of arrays
     sheetData.forEach(function (row) {
@@ -47,7 +48,3 @@ function generate() {
     });
     return lines;
 }
-
-var lines = generate();
-console.log(lines.length + ' insert statements generated');
-lines.forEach(line => console.log(line));
