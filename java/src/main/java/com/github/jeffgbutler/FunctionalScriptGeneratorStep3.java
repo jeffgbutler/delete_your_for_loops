@@ -10,67 +10,63 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step3 is use streams everywhere.  If you think about it a but differently, you can see that
- * the second getStatements method is actually mapping the Stream of enums into a stream of statements.
+ * Step3 is Streams all the way, and flatMap.
  * 
- * Changes:
- * 
- * 1. Second getStatements method now returns a stream
- * 2. First getStatements method uses a flatMap and Collector
- * 
- * See how the getStatements methods are so much smaller, and we are not ever creating our
- * own ArrayList.
- * 
- * Next step is to remove the if statements with optionals
+ * Changes are only in the generate and getStatementsFromRow functions
  * 
  * @author Jeff Butler
  *
  */
 public class FunctionalScriptGeneratorStep3 implements Generator {
 
+    private static int[][] columnToApplicationMappings = {
+            {1, 2237},
+            {2, 4352},
+            {3, 3657},
+            {4, 5565}
+    };
+
+    private static String getInsertStatement(String userId, int appId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+                + userId
+                + "', "
+                + appId
+                + ");";
+    }
+
     @Override
     public List<String> generate(Sheet sheet) {
         return Utils.stream(sheet)
-                .filter(this::hasUserId)
-                .flatMap(this::getStatements)
+                .filter(row -> hasValidUserId(row))
+                .flatMap(row -> getStatementsFromRow(row))
                 .collect(Collectors.toList());
     }
-    
-    private boolean hasUserId(Row row) {
-        return getUserId(row) != null;
-    }
 
-    private Stream<String> getStatements(Row row) {
-        String userId = getUserId(row);
-
-        return Arrays.stream(AppInfo.values())
-                .filter(ai -> hasAuthority(row, ai))
-                .map(ai -> ai.getInsertStatement(userId));
+    private Stream<String> getStatementsFromRow(Row row) {
+        String userId = row.getCell(0).getStringCellValue();
+        return Arrays.stream(columnToApplicationMappings)
+                .filter(mapping -> hasAuthority(row, mapping[0]))
+                .map(mapping -> getInsertStatement(userId, mapping[1]));
     }
     
-    private String getUserId(Row row) {
+    private boolean hasValidUserId(Row row) {
         Cell cell = row.getCell(0);
         if (cell != null) {
-            String value = cell.getStringCellValue();
-            if (isValidUserId(value)) {
-                return value;
-            }
-        }
-        
-        return null;
-    }
-
-    private boolean hasAuthority(Row row, AppInfo appInfo) {
-        Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null) {
-            String cellValue = cell.getStringCellValue();
-            if (hasAuthority(cellValue)) {
-                return true;
-            }
+            String userId = cell.getStringCellValue();
+            return isValidUserId(userId);
         }
         return false;
     }
     
+    private boolean hasAuthority(Row row, int columnNumber) {
+        Cell cell = row.getCell(columnNumber);
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            return hasAuthority(cellValue);
+        }
+        return false;
+    }
+
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }

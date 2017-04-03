@@ -8,72 +8,69 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step1 is pure functions.  Changes:
- * 
- * 1. Decomposed the deeply nested structure into pure functions
- * 
- * All methods could be static at this point, and all arguments are read only.  No mutable state.
- * 
- * The generate function is not pure because it depends on an external file.  All other functions are pure.
- * 
- * First tradeoff is that this method creates a new ArrayList for each row in the table, then that List
- * is merged into the main list.  Does this sound like reduction?
- * 
- * This is now 100% thread safe at the expense of a bit more memory used.
+ * Step1 is to refactor into smaller, purer functions.
  * 
  * @author Jeff Butler
  *
  */
 public class FunctionalScriptGeneratorStep1 implements Generator {
 
+    private static int[][] columnToApplicationMappings = {
+            {1, 2237},
+            {2, 4352},
+            {3, 3657},
+            {4, 5565}
+    };
+
+    private static String getInsertStatement(String userId, int appId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+                + userId
+                + "', "
+                + appId
+                + ");";
+    }
+
     @Override
     public List<String> generate(Sheet sheet) {
         List<String> lines = new ArrayList<>();
-        
         for (Row row : sheet) {
-            String userId = getUserId(row);
-            
-            if (userId != null) {
-                lines.addAll(getStatements(row, userId));
+            if (hasValidUserId(row)) {
+                lines.addAll(getStatementsFromRow(row));
             }
         }
-        
+
         return lines;
     }
 
-    private List<String> getStatements(Row row, String userId) {
+    private List<String> getStatementsFromRow(Row row) {
         List<String> lines = new ArrayList<>();
-        for(AppInfo appInfo : AppInfo.values()) {
-            if (hasAuthority(row, appInfo)) {
-                lines.add(appInfo.getInsertStatement(userId));
+        String userId = row.getCell(0).getStringCellValue();
+        for (int[] columnToApplicationMapping : columnToApplicationMappings) {
+            if (hasAuthority(row, columnToApplicationMapping[0])) {
+                lines.add(getInsertStatement(userId, columnToApplicationMapping[1]));
             }
         }
         return lines;
     }
     
-    private String getUserId(Row row) {
+    private boolean hasValidUserId(Row row) {
         Cell cell = row.getCell(0);
         if (cell != null) {
-            String value = cell.getStringCellValue();
-            if (isValidUserId(value)) {
-                return value;
-            }
-        }
-        
-        return null;
-    }
-
-    private boolean hasAuthority(Row row, AppInfo appInfo) {
-        Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null) {
-            String cellValue = cell.getStringCellValue();
-            if (hasAuthority(cellValue)) {
-                return true;
-            }
+            String userId = cell.getStringCellValue();
+            return isValidUserId(userId);
         }
         return false;
     }
     
+    private boolean hasAuthority(Row row, int columnNumber) {
+        Cell cell = row.getCell(columnNumber);
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            return hasAuthority(cellValue);
+        }
+        return false;
+    }
+
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }

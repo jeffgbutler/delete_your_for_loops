@@ -3,7 +3,6 @@ package com.github.jeffgbutler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,17 +12,16 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step5 introduces Optional.
+ * Step4a introduces method references in Java.
  * 
  * Changes:
  * 
- * 1. add the getCell method that returns an optional
- * 2. hasValidUserId and hasAuthority functions are changed
+ * 1. generate function changed to use method references
  * 
  * @author Jeff Butler
  *
  */
-public class FunctionalScriptGeneratorStep5 implements Generator {
+public class FunctionalScriptGeneratorStep4a implements Generator {
 
     private static Map<Integer, Function<String, String>> columnToApplicationMappings = new HashMap<>();
     
@@ -62,23 +60,23 @@ public class FunctionalScriptGeneratorStep5 implements Generator {
     }
     
     private boolean hasValidUserId(Row row) {
-        return getCell(row, 0)
-                .map(Cell::getStringCellValue)
-                .map(this::isValidUserId)
-                .orElse(false);
+        Cell cell = row.getCell(0);
+        if (cell != null) {
+            String userId = cell.getStringCellValue();
+            return isValidUserId(userId);
+        }
+        return false;
     }
     
     private boolean hasAuthority(Row row, int columnNumber) {
-        return getCell(row, columnNumber)
-                .map(Cell::getStringCellValue)
-                .map(this::hasAuthority)
-                .orElse(false);
+        Cell cell = row.getCell(columnNumber);
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            return hasAuthority(cellValue);
+        }
+        return false;
     }
 
-    private Optional<Cell> getCell(Row row, int columnNumber) {
-        return Optional.ofNullable(row.getCell(columnNumber));
-    }
-    
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }

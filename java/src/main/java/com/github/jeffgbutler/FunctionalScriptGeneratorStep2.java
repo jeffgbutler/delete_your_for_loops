@@ -3,74 +3,75 @@ package com.github.jeffgbutler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step2 is remove for loops, but only go to forEach.  Changes:
+ * Step2 is to use map/filter/reduce, but keep the lists.  This introduces streams and collectors.
  * 
- * 1. First getStatements method uses a utility function to make a stream from an iterable.  Then uses filter.
- * 2. Added the hasUserId function for the filter
- * 3. Second getStatements method uses an array stream and forEach.  This shows filter.
- * 
- * The real challenge is the second getStatements method.  It is still too complex, and creates
- * too many ArrayLists.  Step 3 is to use streams everywhere.
+ * Changes are only in the generate and getStatementsFromRow functions
  * 
  * @author Jeff Butler
  *
  */
 public class FunctionalScriptGeneratorStep2 implements Generator {
 
+    private static int[][] columnToApplicationMappings = {
+            {1, 2237},
+            {2, 4352},
+            {3, 3657},
+            {4, 5565}
+    };
+
+    private static String getInsertStatement(String userId, int appId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+                + userId
+                + "', "
+                + appId
+                + ");";
+    }
+
     @Override
     public List<String> generate(Sheet sheet) {
         List<String> lines = new ArrayList<>();
         
         Utils.stream(sheet)
-        .filter(this::hasUserId)
-        .forEach(row -> lines.addAll(getStatements(row)));
+        .filter(row -> hasValidUserId(row))
+        .map(row -> getStatementsFromRow(row))
+        .forEach(rowLines -> lines.addAll(rowLines));
         
         return lines;
-    }
-    
-    private boolean hasUserId(Row row) {
-        return getUserId(row) != null;
     }
 
-    private List<String> getStatements(Row row) {
-        String userId = getUserId(row);
-        List<String> lines = new ArrayList<>();
-        Arrays.stream(AppInfo.values())
-        .filter(ai -> hasAuthority(row, ai))
-        .forEach(ai -> lines.add(ai.getInsertStatement(userId)));
-        
-        return lines;
+    private List<String> getStatementsFromRow(Row row) {
+        String userId = row.getCell(0).getStringCellValue();
+        return Arrays.stream(columnToApplicationMappings)
+                .filter(mapping -> hasAuthority(row, mapping[0]))
+                .map(mapping -> getInsertStatement(userId, mapping[1]))
+                .collect(Collectors.toList());
     }
     
-    private String getUserId(Row row) {
+    private boolean hasValidUserId(Row row) {
         Cell cell = row.getCell(0);
         if (cell != null) {
-            String value = cell.getStringCellValue();
-            if (isValidUserId(value)) {
-                return value;
-            }
-        }
-        
-        return null;
-    }
-
-    private boolean hasAuthority(Row row, AppInfo appInfo) {
-        Cell cell = row.getCell(appInfo.columnNumber());
-        if (cell != null) {
-            String cellValue = cell.getStringCellValue();
-            if (hasAuthority(cellValue)) {
-                return true;
-            }
+            String userId = cell.getStringCellValue();
+            return isValidUserId(userId);
         }
         return false;
     }
     
+    private boolean hasAuthority(Row row, int columnNumber) {
+        Cell cell = row.getCell(columnNumber);
+        if (cell != null) {
+            String cellValue = cell.getStringCellValue();
+            return hasAuthority(cellValue);
+        }
+        return false;
+    }
+
     private boolean hasAuthority(String value) {
         return "X".equals(value);
     }

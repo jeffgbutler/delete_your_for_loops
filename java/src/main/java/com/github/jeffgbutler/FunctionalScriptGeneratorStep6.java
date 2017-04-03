@@ -1,7 +1,8 @@
 package com.github.jeffgbutler;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -12,37 +13,60 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step6 is a higher order functions - kind of tortured in Java.  Changes:
+ * Step6 solves the problem where the userId is asked for twice through a rethinking of how to use Optional.
  * 
- * 1. New function getStatementBuilderForRow returns a Functor - an object that contains a function
- * 2. The getStatements(Row) method uses the functor and a method reference
+ * Changes:
  * 
- *  This pattern could be continued in the getStatementBuilderForRow method if you feel you must use
- *  method references everywhere.
+ * 1. add getUserId that returns optional
+ * 2. remove hasValidUserId function
+ * 3. generate no longer filters by valid userId - this is handled in the getStatementFromRow function
+ * 4. added getStatementsFromRow(Row, String) function
+ * 
+ * Now the userId check is only done one place
  * 
  * @author Jeff Butler
  *
  */
 public class FunctionalScriptGeneratorStep6 implements Generator {
 
+    private static Map<Integer, Function<String, String>> columnToApplicationMappings = new HashMap<>();
+    
+    static {
+        columnToApplicationMappings.put(1, getInsertBuilderForApplication(2237));
+        columnToApplicationMappings.put(2, getInsertBuilderForApplication(4352));
+        columnToApplicationMappings.put(3, getInsertBuilderForApplication(3657));
+        columnToApplicationMappings.put(4, getInsertBuilderForApplication(5565));
+    }
+
+    private static Function<String, String> getInsertBuilderForApplication(int appId) {
+        return (userId) -> getInsertStatement(userId, appId);
+    }
+    
+    private static String getInsertStatement(String userId, int appId) {
+        return "insert into ApplicationPermission(user_id, application_id) values('"
+                + userId
+                + "', "
+                + appId
+                + ");";
+    }
+
     @Override
     public List<String> generate(Sheet sheet) {
         return Utils.stream(sheet)
-                .flatMap(this::getStatements)
+                .flatMap(this::getStatementsFromRow)
                 .collect(Collectors.toList());
     }
-    
-    private Stream<String> getStatements(Row row) {
-        Function<String, Stream<String>> statementBuilder = getStatementBuilderForRow(row);
+
+    private Stream<String> getStatementsFromRow(Row row) {
         return getUserId(row)
-                .map(statementBuilder::apply)
+                .map(userId -> getStatementsFromRow(row, userId))
                 .orElse(Stream.empty());
     }
     
-    private Function<String, Stream<String>> getStatementBuilderForRow(Row row) {
-        return userId -> Arrays.stream(AppInfo.values())
-                .filter(ai -> hasAuthority(row, ai))
-                .map(ai -> ai.getInsertStatement(userId));
+    private Stream<String> getStatementsFromRow(Row row, String userId) {
+        return columnToApplicationMappings.entrySet().stream()
+                .filter(mapping -> hasAuthority(row, mapping.getKey()))
+                .map(mapping -> mapping.getValue().apply(userId));
     }
     
     private Optional<String> getUserId(Row row) {
@@ -50,12 +74,16 @@ public class FunctionalScriptGeneratorStep6 implements Generator {
                 .map(Cell::getStringCellValue)
                 .filter(this::isValidUserId);
     }
-
-    private boolean hasAuthority(Row row, AppInfo appInfo) {
-        return getCell(row, appInfo.columnNumber())
+    
+    private boolean hasAuthority(Row row, int columnNumber) {
+        return getCell(row, columnNumber)
                 .map(Cell::getStringCellValue)
                 .map(this::hasAuthority)
                 .orElse(false);
+    }
+
+    private Optional<Cell> getCell(Row row, int columnNumber) {
+        return Optional.ofNullable(row.getCell(columnNumber));
     }
     
     private boolean hasAuthority(String value) {
@@ -64,9 +92,5 @@ public class FunctionalScriptGeneratorStep6 implements Generator {
 
     private boolean isValidUserId(String value) {
         return ".".equals(value.substring(1, 2));
-    }
-    
-    private Optional<Cell> getCell(Row row, int cellNumber) {
-        return Optional.ofNullable(row.getCell(cellNumber));
     }
 }

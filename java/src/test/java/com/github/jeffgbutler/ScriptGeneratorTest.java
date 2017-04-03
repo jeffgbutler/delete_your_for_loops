@@ -12,14 +12,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 
-import com.github.jeffgbutler.CrappyScriptGenerator;
-import com.github.jeffgbutler.FunctionalScriptGeneratorStep1;
-import com.github.jeffgbutler.FunctionalScriptGeneratorStep2;
-import com.github.jeffgbutler.FunctionalScriptGeneratorStep3;
-import com.github.jeffgbutler.FunctionalScriptGeneratorStep4;
-import com.github.jeffgbutler.FunctionalScriptGeneratorStep5;
-import com.github.jeffgbutler.Generator;
-
 public class ScriptGeneratorTest {
 
     private void testGenerator(Generator generator) throws IOException {
@@ -57,6 +49,11 @@ public class ScriptGeneratorTest {
     @Test
     public void testFunctionalGenerator4() throws IOException {
         testGenerator(new FunctionalScriptGeneratorStep4());
+    }
+    
+    @Test
+    public void testFunctionalGenerator4a() throws IOException {
+        testGenerator(new FunctionalScriptGeneratorStep4a());
     }
     
     @Test
