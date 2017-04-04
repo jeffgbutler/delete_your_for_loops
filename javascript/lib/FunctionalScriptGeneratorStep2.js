@@ -1,4 +1,4 @@
-// this variant shows the use of a higher order function
+// this variant changes all the for loops into map/filter/reduce
 
 const applicationInformation = [
     {
@@ -19,13 +19,6 @@ const applicationInformation = [
     }
 ];
 
-// this is currying
-function makeInsertStatementBuilderForUser(userId) {
-    return function (applicationId) {
-        return getInsertStatement(userId, applicationId);
-    };
-}
-
 function getInsertStatement(userId, applicationId) {
     return "insert into ApplicationPermission(user_id, application_id) values('"
         + userId
@@ -36,19 +29,19 @@ function getInsertStatement(userId, applicationId) {
 
 function generate(sheetData) {
     return sheetData
-        .filter(row => hasUserId(row))
-        .map(row => getStatementsForRow(row))
+        .filter(row => hasValidUserId(row))
+        .map(row => getStatementsFromRow(row))
         .reduce((acc, arr) => acc.concat(arr), []);  // this is a flatten
 }
 
-function getStatementsForRow(row) {
-    let getInsertStatement = makeInsertStatementBuilderForUser(getUserId(row));
+function getStatementsFromRow(row) {
+    // we can assume there is a valid userId here because invalids are filtered out above
     return applicationInformation
         .filter(ai => hasAuthority(row[ai.columnIndex]))
-        .map(ai => getInsertStatement(ai.applicationId));
+        .map(ai => getInsertStatement(getUserId(row), ai.applicationId));
 }
 
-function hasUserId(row) {
+function hasValidUserId(row) {
     let userId = getUserId(row);
     return userId != undefined && isValidUserId(userId);
 }

@@ -1,6 +1,7 @@
-// this shows a more interesting use of higher order functions.  Now the applicationInformation array
-// contains specialized functions for each column.  The makeInsertStatementBuilder... curried function
-// has been reversed and then the specialized function is called in getStatementsForRow
+// this shows the use of higher order functions.  Now the applicationInformation array
+// contains specialized functions for each column.  The makeInsertStatementBuilderForApplication
+// returns a new function that is called a partial and then the specialized function is called
+// in getStatementsFromRow
 
 const applicationInformation = [
     {
@@ -21,7 +22,7 @@ const applicationInformation = [
     }
 ];
 
-// this is currying
+// this is a partial (kind of like currying)
 function makeInsertStatementBuilderForApplication(applicationId) {
     return function (userId) {
         return getInsertStatement(userId, applicationId);
@@ -38,18 +39,18 @@ function getInsertStatement(userId, applicationId) {
 
 function generate(sheetData) {
     return sheetData
-        .filter(row => hasUserId(row))
-        .map(row => getStatementsForRow(row))
+        .filter(row => hasValidUserId(row))
+        .map(row => getStatementsFromRow(row))
         .reduce((acc, arr) => acc.concat(arr), []);  // this is a flatten
 }
 
-function getStatementsForRow(row) {
+function getStatementsFromRow(row) {
     return applicationInformation
         .filter(ai => hasAuthority(row[ai.columnIndex]))
         .map(ai => ai.getInsertStatement(getUserId(row)));
 }
 
-function hasUserId(row) {
+function hasValidUserId(row) {
     let userId = getUserId(row);
     return userId != undefined && isValidUserId(userId);
 }

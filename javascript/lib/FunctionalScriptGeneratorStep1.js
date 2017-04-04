@@ -1,5 +1,3 @@
-// this variant changes all the for loops into map/filter/reduce
-
 const applicationInformation = [
     {
         columnIndex: 1,
@@ -28,20 +26,28 @@ function getInsertStatement(userId, applicationId) {
 }
 
 function generate(sheetData) {
-    return sheetData
-        .filter(row => hasUserId(row))
-        .map(row => getStatementsForRow(row))
-        .reduce((acc, arr) => acc.concat(arr), []);  // this is a flatten
+    let lines = [];
+    sheetData.forEach(function (row) {
+        if (hasValidUserId(row)) {
+            lines = lines.concat(getStatementsFromRow(row));
+        }
+    });
+    return lines;
 }
 
-function getStatementsForRow(row) {
-    // we can assume there is a valid userId here because invalids are filtered out above
-    return applicationInformation
-        .filter(ai => hasAuthority(row[ai.columnIndex]))
-        .map(ai => getInsertStatement(getUserId(row), ai.applicationId));
+function getStatementsFromRow(row) {
+    let lines = [];
+    let userId = getUserId(row);
+    applicationInformation.forEach(function (appInfo) {
+        let cell = row[appInfo.columnIndex];
+        if (hasAuthority(cell)) {
+            lines.push(getInsertStatement(userId, appInfo.applicationId));
+        }
+    });
+    return lines;
 }
 
-function hasUserId(row) {
+function hasValidUserId(row) {
     let userId = getUserId(row);
     return userId != undefined && isValidUserId(userId);
 }
