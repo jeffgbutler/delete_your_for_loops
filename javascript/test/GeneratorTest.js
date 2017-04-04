@@ -1,4 +1,5 @@
 const XLSX = require("xlsx");
+const expect = require("chai").expect;
 const crappyGenerator = require("../lib/CrappyScriptGenerator");
 const functionalGenerator1 = require("../lib/FunctionalScriptGeneratorStep1");
 const functionalGenerator2 = require("../lib/FunctionalScriptGeneratorStep2");
@@ -25,7 +26,7 @@ describe("FunctionalScriptGeneratorStep3", function () {
 });
 
 function getSheetData() {
-    let workbook = XLSX.readFile("spec/Users.xlsx");
+    let workbook = XLSX.readFile("test/Users.xlsx");
     let worksheet = workbook.Sheets[workbook.SheetNames[0]];
     return XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // generate an array of arrays
 }
@@ -33,19 +34,19 @@ function getSheetData() {
 function describeGenerator(lines) {
     describe("FunctionalScriptGeneratorStep3", function () {
         it("generates 44 records", function () {
-            expect(lines.length).toBe(44);
+            expect(lines.length).to.equal(44);
         });
 
         it("generates a correct 0th record", function () {
-            expect(lines[0]).toBe("insert into ApplicationPermission(user_id, application_id) values('t.wilson', 2237);");
+            expect(lines[0]).to.equal("insert into ApplicationPermission(user_id, application_id) values('t.wilson', 2237);");
         });
 
         it("generates a correct 22nd record", function () {
-            expect(lines[22]).toBe("insert into ApplicationPermission(user_id, application_id) values('b.walton', 4352);");
+            expect(lines[22]).to.equal("insert into ApplicationPermission(user_id, application_id) values('b.walton', 4352);");
         });
 
         it("generates a correct 43rd record", function () {
-            expect(lines[43]).toBe("insert into ApplicationPermission(user_id, application_id) values('e.nash', 5565);");
+            expect(lines[43]).to.equal("insert into ApplicationPermission(user_id, application_id) values('e.nash', 5565);");
         });
     });
 }
