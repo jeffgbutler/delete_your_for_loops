@@ -18,7 +18,7 @@ namespace ScriptBuilder.Tests
             FileInfo file = new FileInfo("Users.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet sheet = package.Workbook.Worksheets[1];
-            List<string> lines = generator.generate(sheet);
+            List<string> lines = generator.Generate(sheet);
             Assert.Equal(44, lines.Count);
             Assert.Equal(lines[0], "insert into ApplicationPermission(user_id, application_id) values('t.wilson', 2237);");
             Assert.Equal(lines[22], "insert into ApplicationPermission(user_id, application_id) values('b.walton', 4352);");
