@@ -39,7 +39,7 @@ public class FunctionalScriptGeneratorStep6 implements Generator {
     }
 
     private static Function<String, String> getInsertBuilderForApplication(int appId) {
-        return (userId) -> getInsertStatement(userId, appId);
+        return userId -> getInsertStatement(userId, appId);
     }
     
     private static String getInsertStatement(String userId, int appId) {

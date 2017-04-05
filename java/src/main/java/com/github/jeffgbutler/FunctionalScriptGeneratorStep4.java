@@ -40,7 +40,7 @@ public class FunctionalScriptGeneratorStep4 implements Generator {
 
     // this is a partial...almost like currying
     private static Function<String, String> getInsertBuilderForApplication(int appId) {
-        return (userId) -> getInsertStatement(userId, appId);
+        return userId -> getInsertStatement(userId, appId);
     }
     
     private static String getInsertStatement(String userId, int appId) {
