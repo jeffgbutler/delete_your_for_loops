@@ -38,7 +38,7 @@ function getSheetData() {
 }
 
 function describeGenerator(lines) {
-    describe("FunctionalScriptGeneratorStep3", function () {
+    describe("ScriptGenerator", function () {
         it("generates 44 records", function () {
             expect(lines.length).to.equal(44);
         });
