@@ -4,6 +4,7 @@ const crappyGenerator = require("../lib/CrappyScriptGenerator");
 const functionalGenerator1 = require("../lib/FunctionalScriptGeneratorStep1");
 const functionalGenerator2 = require("../lib/FunctionalScriptGeneratorStep2");
 const functionalGenerator3 = require("../lib/FunctionalScriptGeneratorStep3");
+const functionalGenerator4 = require("../lib/FunctionalScriptGeneratorStep4");
 
 describe("CrappyGenerator", function () {
     let lines = crappyGenerator.generate(getSheetData());
@@ -22,6 +23,11 @@ describe("FunctionalScriptGeneratorStep2", function () {
 
 describe("FunctionalScriptGeneratorStep3", function () {
     let lines = functionalGenerator3.generate(getSheetData());
+    describeGenerator(lines);
+});
+
+describe("FunctionalScriptGeneratorStep4", function () {
+    let lines = functionalGenerator4.generate(getSheetData());
     describeGenerator(lines);
 });
 
