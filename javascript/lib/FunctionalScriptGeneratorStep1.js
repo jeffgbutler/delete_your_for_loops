@@ -29,14 +29,13 @@ function generate(sheetData) {
     let lines = [];
     sheetData.forEach(function (row) {
         if (hasValidUserId(row)) {
-            lines = lines.concat(getStatementsFromRow(row));
+            getStatementsFromRow(row, lines);
         }
     });
     return lines;
 }
 
-function getStatementsFromRow(row) {
-    let lines = [];
+function getStatementsFromRow(row, lines) {
     let userId = getUserId(row);
     applicationInformation.forEach(function (appInfo) {
         let cell = row[appInfo.columnIndex];
@@ -44,7 +43,6 @@ function getStatementsFromRow(row) {
             lines.push(getInsertStatement(userId, appInfo.applicationId));
         }
     });
-    return lines;
 }
 
 function hasValidUserId(row) {

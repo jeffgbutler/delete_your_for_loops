@@ -8,7 +8,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
- * Step1 is to refactor into smaller, purer functions.
+ * Step1 is to refactor into smaller functions.
  * 
  * @author Jeff Butler
  *
@@ -35,15 +35,14 @@ public class FunctionalScriptGeneratorStep1 implements Generator {
         List<String> lines = new ArrayList<>();
         for (Row row : sheet) {
             if (hasValidUserId(row)) {
-                lines.addAll(getStatementsFromRow(row));
+                getStatementsFromRow(row, lines);
             }
         }
 
         return lines;
     }
 
-    private List<String> getStatementsFromRow(Row row) {
-        List<String> lines = new ArrayList<>();
+    private List<String> getStatementsFromRow(Row row, List<String> lines) {
         String userId = row.getCell(0).getStringCellValue();
         for (int[] columnToApplicationMapping : columnToApplicationMappings) {
             if (hasAuthority(row, columnToApplicationMapping[0])) {
