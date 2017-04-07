@@ -3,6 +3,7 @@ package com.github.jeffgbutler;
 import static org.hamcrest.core.Is.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,4 +50,21 @@ public class TypicalStreamExamplesTest {
         assertThat(outlist.get(0), is("FRED"));
         assertThat(outlist.get(1), is("WILMA"));
     }
+
+    @Test
+    public void testSyntaxSugar() {
+        String[] strings = {"fred", "pebbles", "wilma"};
+        
+        List<String> outlist = new ArrayList<>();
+        Arrays.stream(strings)
+        .forEach(string -> {
+            outlist.add(string.toUpperCase());
+        });
+        
+        assertThat(outlist.size(), is(3));
+        assertThat(outlist.get(0), is("FRED"));
+        assertThat(outlist.get(2), is("WILMA"));
+    }
+
+
 }

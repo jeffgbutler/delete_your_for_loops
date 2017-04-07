@@ -35,21 +35,20 @@ public class FunctionalScriptGeneratorStep1 implements Generator {
         List<String> lines = new ArrayList<>();
         for (Row row : sheet) {
             if (hasValidUserId(row)) {
-                getStatementsFromRow(row, lines);
+                addStatementsFromRow(row, lines);
             }
         }
 
         return lines;
     }
 
-    private List<String> getStatementsFromRow(Row row, List<String> lines) {
+    private void addStatementsFromRow(Row row, List<String> lines) {
         String userId = row.getCell(0).getStringCellValue();
         for (int[] columnToApplicationMapping : columnToApplicationMappings) {
             if (hasAuthority(row, columnToApplicationMapping[0])) {
                 lines.add(getInsertStatement(userId, columnToApplicationMapping[1]));
             }
         }
-        return lines;
     }
     
     private boolean hasValidUserId(Row row) {
