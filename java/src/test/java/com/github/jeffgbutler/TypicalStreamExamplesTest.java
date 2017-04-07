@@ -18,10 +18,10 @@ public class TypicalStreamExamplesTest {
 
     @Test
     public void testIntStreamMapReduce() {
-        int answer = IntStream.rangeClosed(1, 10)
-                .map(i -> i * 3)
-                .filter(i -> i % 2 == 0)
-                .reduce(0, (i1, i2) -> i1 + i2);
+        int answer = IntStream.rangeClosed(1, 10)    // integers from 1 to 10
+                .map(i -> i * 3)                     // multiply all by 3
+                .filter(i -> i % 2 == 0)             // remove any that aren't even numbers
+                .reduce(0, (i1, i2) -> i1 + i2);     // add them up
         
         assertThat(answer, is(90));
     }
