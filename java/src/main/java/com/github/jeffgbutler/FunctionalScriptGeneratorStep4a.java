@@ -1,8 +1,7 @@
 package com.github.jeffgbutler;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,14 +22,12 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class FunctionalScriptGeneratorStep4a implements Generator {
 
-    private static Map<Integer, Function<String, String>> columnToApplicationMappings = new HashMap<>();
-    
-    static {
-        columnToApplicationMappings.put(1, getInsertBuilderForApplication(2237));
-        columnToApplicationMappings.put(2, getInsertBuilderForApplication(4352));
-        columnToApplicationMappings.put(3, getInsertBuilderForApplication(3657));
-        columnToApplicationMappings.put(4, getInsertBuilderForApplication(5565));
-    }
+    private static Pair[] columnToApplicationMappings = {
+            Pair.of(1, getInsertBuilderForApplication(2237)),
+            Pair.of(2, getInsertBuilderForApplication(4352)),
+            Pair.of(3, getInsertBuilderForApplication(3657)),
+            Pair.of(4, getInsertBuilderForApplication(5565))
+    };
 
     private static Function<String, String> getInsertBuilderForApplication(int appId) {
         return userId -> getInsertStatement(userId, appId);
@@ -54,9 +51,9 @@ public class FunctionalScriptGeneratorStep4a implements Generator {
 
     private Stream<String> getStatementsFromRow(Row row) {
         String userId = row.getCell(0).getStringCellValue();
-        return columnToApplicationMappings.entrySet().stream()
-                .filter(mapping -> hasAuthority(row, mapping.getKey()))
-                .map(mapping -> mapping.getValue().apply(userId));
+        return Arrays.stream(columnToApplicationMappings)
+                .filter(mapping -> hasAuthority(row, mapping.columnNumber()))
+                .map(mapping -> mapping.insertBuilder().apply(userId));
     }
     
     private boolean hasValidUserId(Row row) {
